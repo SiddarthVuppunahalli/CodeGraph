@@ -1,0 +1,30 @@
+[
+  {
+    "repo_name": "sample_repo",
+    "version": "v1.0.0",
+    "question": "What calls the authenticate_user function?",
+    "category": "call-trace",
+    "ground_truth_answer": "The authenticate_user function is called by the login handler in auth.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "auth.py",
+        "line_ranges": [12, 15]
+      }
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "repo_name": "sample_repo",
+    "version": "v1.0.0",
+    "question": "Where is the default timeout configuration defined?",
+    "category": "config-default",
+    "ground_truth_answer": "The default timeout is defined as 30 seconds in config.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "config.py",
+        "line_ranges": [4, 4]
+      }
+    ],
+    "difficulty": "easy"
+  }
+]

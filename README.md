@@ -5,7 +5,7 @@
 CodeGraph is a developer-focused assistant that answers repository questions with verifiable evidence. Every answer includes file-path and line-range citations, and the agent can follow imports/calls to explain behavior that spans multiple files.
 
 ## Team Members
-*   **Siddarth Vuppunhalli** — Siddarth.vuppunhalli@sjsu.edu — SJSU ID: 019157203
+*   **Siddarth Vuppunahalli** — Siddarth.vuppunahalli@sjsu.edu — SJSU ID: 019157203
 *   **Krishna Panjiyar** — krishna.panjiyar@sjsu.edu — SJSU ID: 014981369
 *   **Shivani Vinodkumar Jariwala** — shivanivinodkumar.jariwala@sjsu.edu — SJSU ID: 018284188
 
@@ -36,9 +36,25 @@ A web app where users provide a GitHub URL/ZIP and ask questions. CodeGraph will
 *   **FastAPI & Streamlit/React:** Backend and UI
 *   **Open-weight / Hosted LLMs**
 
-## Progress & Next Steps
+## Project Roadmap & Next Steps
+
+### Phase 1: Foundation (Current)
 - [x] Initial Repository Setup and README.
-- [ ] Define CodeGraphEval-50 JSON Schema.
-- [ ] Implement initial NetworkX codebase graph builder.
-- [ ] Set up evaluation harness script to test logic against dummy data.
-- [ ] Implement basic Retrieval (FAISS/BM25).
+- [x] Establish required dependencies (`transformers`, `tree-sitter`, `networkx`, `faiss`, `fastapi`).
+- [ ] Define the `CodeGraphEval-50` Evaluation Benchmark dataset schema and initial mock data.
+
+### Phase 2: Core Infrastructure (Code Parsing & Retrieval)
+- [ ] Implement `tree-sitter` parsers (`src/parsing`) to extract functions, classes, and calls from code.
+- [ ] Build the Dependency Graph using `NetworkX` (`src/graph`) to track caller-callee relationships.
+- [ ] Implement Lexical Search (`rank-bm25`) and Semantic Search (`FAISS`) for repository context retrieval.
+
+### Phase 3: Agent System & Evaluation Harness
+- [ ] Develop the Agent logic (`src/agent`) to answer NLP queries and output strict citation ranges.
+- [ ] Build the Evaluation script (`scripts/run_eval.py`) to systematically grade the Agent against `CodeGraphEval-50`.
+- [ ] Integrate local Open-weight LLMs (e.g., Llama, Qwen coder) and a Hosted API LLM for comparison.
+
+### Phase 4: Full App & Demo UI
+- [ ] Develop a `FastAPI` backend to serve the Agent logic.
+- [ ] Build the `Streamlit` or `React` Web application allowing users to interactively query codebases.
+- [ ] Add the complete "Evaluate" dashboard to compare Accuracy, Grounding Score, and Hallucination Rates across models.
+- [ ] Implement UI components to display dependency sub-graphs and call-path traces visually.
