@@ -41,16 +41,16 @@ A web app where users provide a GitHub URL/ZIP and ask questions. CodeGraph will
 ### Phase 1: Foundation (Current)
 - [x] Initial Repository Setup and README.
 - [x] Establish required dependencies (`transformers`, `tree-sitter`, `networkx`, `faiss`, `fastapi`).
-- [ ] Define the `CodeGraphEval-50` Evaluation Benchmark dataset schema and initial mock data.
+- [x] Define the `CodeGraphEval-50` Evaluation Benchmark dataset schema and initial mock data.
 
 ### Phase 2: Core Infrastructure (Code Parsing & Retrieval)
-- [ ] Implement `tree-sitter` parsers (`src/parsing`) to extract functions, classes, and calls from code.
-- [ ] Build the Dependency Graph using `NetworkX` (`src/graph`) to track caller-callee relationships.
+- [ ] Implement `tree-sitter` parsers (`src/parsing`) to extract functions, classes, and calls from code. (*Stubs created*)
+- [ ] Build the Dependency Graph using `NetworkX` (`src/graph`) to track caller-callee relationships. (*Basic framework created*)
 - [ ] Implement Lexical Search (`rank-bm25`) and Semantic Search (`FAISS`) for repository context retrieval.
 
 ### Phase 3: Agent System & Evaluation Harness
 - [ ] Develop the Agent logic (`src/agent`) to answer NLP queries and output strict citation ranges.
-- [ ] Build the Evaluation script (`scripts/run_eval.py`) to systematically grade the Agent against `CodeGraphEval-50`.
+- [ ] Build the Evaluation script (`scripts/run_eval.py`) to systematically grade the Agent against `CodeGraphEval-50`. (*Initial harness created*)
 - [ ] Integrate local Open-weight LLMs (e.g., Llama, Qwen coder) and a Hosted API LLM for comparison.
 
 ### Phase 4: Full App & Demo UI
