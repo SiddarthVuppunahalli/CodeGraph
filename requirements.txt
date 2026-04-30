@@ -1,11 +1,20 @@
 fastapi==0.110.0
 uvicorn==0.27.1
 streamlit==1.32.0
-tree-sitter==0.21.0
-tree-sitter-python==0.21.0
+tree-sitter>=0.23,<0.24
+tree-sitter-python>=0.23,<0.24
 networkx==3.2.1
 faiss-cpu==1.8.0
 rank-bm25==0.2.2
 transformers==4.38.2
 pydantic==2.6.4
 pytest==8.1.1
+numpy>=1.26
+requests>=2.31
+python-multipart>=0.0.9
+# Optional — install if you want real embeddings / hosted models / open-weight inference:
+# sentence-transformers>=2.5
+# openai>=1.0
+# anthropic>=0.25
+# torch>=2.2
+# accelerate>=0.27

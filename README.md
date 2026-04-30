@@ -39,6 +39,52 @@ A web app where users provide a GitHub URL/ZIP and ask questions. CodeGraph will
 *   **FastAPI & Streamlit/React:** Backend and UI
 *   **Open-weight / Hosted LLMs**
 
+## Quick start
+
+```bash
+pip install -r requirements.txt
+# optional, for real embeddings / hosted LLMs / open-weight inference:
+pip install sentence-transformers openai anthropic torch accelerate
+
+# 1) Smoke test the agent end-to-end (uses StubLLM, no API keys needed)
+python -m pytest tests/test_smoke.py -x
+
+# 2) Index a repo from the CLI
+python -m scripts.ingest_repo https://github.com/psf/requests
+
+# 3) Run the eval harness against the sample dataset
+python -m scripts.run_eval --model stub --eval data/CodeGraphEval_50_sample.json
+
+# 4) Multi-model comparison table (proposal demo requirement)
+python -m scripts.run_eval --models stub openai:gpt-4o-mini \
+    anthropic:claude-haiku-4-5-20251001 hf:Qwen/Qwen2.5-Coder-1.5B-Instruct \
+    --eval data/CodeGraphEval_50_sample.json --out results.json
+
+# 5) Run the web app
+uvicorn src.api.main:app --reload          # backend on :8000
+streamlit run src/ui/streamlit_app.py      # UI on :8501
+```
+
+Set `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` for hosted models. Open-weight models load locally via `transformers`.
+
+## Layout
+
+```
+src/
+  ingest/       fetch + walk repos (GitHub URL, zip, local dir)
+  parsing/      tree-sitter Python parser (regex fallback)
+  graph/        NetworkX call/contains graph
+  retrieval/    chunker, BM25, FAISS vector, hybrid RRF
+  llm/          pluggable backends: stub | openai | anthropic | hf
+  agent/        ReAct loop with tools + citation critic
+  eval/         CodeGraphEval-50 harness + grounding metrics
+  api/          FastAPI backend
+  ui/           Streamlit UI
+scripts/        run_eval.py, ingest_repo.py
+tests/          smoke tests
+data/           CodeGraphEval-50 dataset
+```
+
 ## Project Roadmap & Next Steps
 
 ### Phase 1: Foundation (Current)

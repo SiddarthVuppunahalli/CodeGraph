@@ -43,3 +43,6 @@ venv.bak/
 *.zip
 *.tar.gz
 data/raw/
+
+# CodeGraph runtime cache (cloned repos + indexes)
+.codegraph_index/

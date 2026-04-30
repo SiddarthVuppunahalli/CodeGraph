@@ -1,56 +1,49 @@
+"""CLI: python -m scripts.run_eval --model stub --eval data/CodeGraphEval_50_sample.json"""
+from __future__ import annotations
+import argparse
 import json
-from src.parsing.parser import PythonCodeParser
-from src.graph.builder import DependencyGraphBuilder
+from pathlib import Path
 
-def run_evaluation():
-    print("Loading CodeGraphEval sample dataset...")
-    with open("data/CodeGraphEval_50_sample.json", "r") as f:
-        eval_cases = json.load(f)
+from src.eval import run_eval
+from src.eval.harness import run_eval_multi
 
-    print(f"Loaded {len(eval_cases)} cases. Initializing dummy Agent...\n")
-    
-    # Initialize Core Infrastructure
-    parser = PythonCodeParser()
-    graph = DependencyGraphBuilder()
-    
-    # Load dummy graph data matching the eval use case
-    graph.build_dummy_graph()
 
-    score = 0
-    
-    for case in eval_cases:
-        question = case["question"]
-        expected = case["ground_truth_answer"]
-        print(f"Q: {question}")
-        
-        # MOCK AGENT LOGIC (Hardcoded exact-match for the demonstration)
-        if "authenticate_user function" in question:
-            # Agent decides to use graph tools
-            callers = graph.get_callers("authenticate_user")
-            # Agent formulates an answer based on graph
-            agent_answer = f"The authenticate_user function is called by the {callers[0]} in auth.py."
-            agent_evidence = [{"filepath": "auth.py", "line_ranges": [12, 15]}]
-            
-        elif "timeout configuration" in question:
-            # Agent decides to use retrieval tools
-            agent_answer = "The default timeout is defined as 30 seconds in config.py."
-            agent_evidence = [{"filepath": "config.py", "line_ranges": [4, 4]}]
-            
-        else:
-            agent_answer = "I don't know."
-            agent_evidence = []
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--eval", default="data/CodeGraphEval_50_sample.json")
+    ap.add_argument("--model", default="stub", help="single model id, e.g. 'stub', 'openai:gpt-4o-mini'")
+    ap.add_argument("--models", nargs="*", help="run multiple models for the comparison table")
+    ap.add_argument("--max-cases", type=int, default=None)
+    ap.add_argument("--repo-sources", default=None,
+                    help="JSON dict mapping 'repo_name@version' to GitHub URL or local path")
+    ap.add_argument("--out", default=None)
+    args = ap.parse_args()
 
-        print(f"Expected: {expected}")
-        print(f"Agent answered: {agent_answer}")
-        
-        if agent_answer == expected:
-            print("[PASS] Exact match!")
-            score += 1
-        else:
-            print("[FAIL] Mismatch")
-        print("-" * 40)
-        
-    print(f"\nFinal Score: {score}/{len(eval_cases)} ({score/len(eval_cases)*100}%)")
+    repo_sources = json.loads(Path(args.repo_sources).read_text()) if args.repo_sources else {}
+
+    if args.models:
+        result = run_eval_multi(
+            Path(args.eval), models=args.models,
+            repo_sources=repo_sources, max_cases=args.max_cases,
+        )
+        # tabular summary
+        print(f"\n{'model':<40} {'EM':>5} {'CON':>5} {'GND':>5} {'F1':>5} {'HAL':>5} {'sec':>6}")
+        for m, r in result.items():
+            a = r["aggregate"]
+            print(f"{m:<40} {a['answer_em']:.2f} {a['answer_contains']:.2f} "
+                  f"{a['citation_grounded']:.2f} {a['citation_f1']:.2f} "
+                  f"{a['hallucination_rate']:.2f} {a['avg_latency_s']:.2f}")
+    else:
+        result = run_eval(
+            Path(args.eval), model=args.model,
+            repo_sources=repo_sources, max_cases=args.max_cases,
+        )
+        print(json.dumps(result["aggregate"], indent=2))
+
+    if args.out:
+        Path(args.out).write_text(json.dumps(result, indent=2))
+        print(f"\nWrote {args.out}")
+
 
 if __name__ == "__main__":
-    run_evaluation()
+    main()
