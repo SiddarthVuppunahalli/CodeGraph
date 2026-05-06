@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from src.agent import CodeGraphAgent
+from src.agent import CodeGraphAgent, SESSION_STORE
 from src.config import DATA_DIR
 from src.eval import run_eval
 from src.index_repo import RepoIndex, build_index
@@ -39,6 +39,7 @@ class AskReq(BaseModel):
     repo_id: str
     question: str
     model: str = "stub"
+    session_id: str = "default"
 
 
 class EvalReq(BaseModel):
@@ -87,7 +88,11 @@ def ask(req: AskReq):
     idx = _INDEXES.get(req.repo_id)
     if idx is None:
         raise HTTPException(404, f"Unknown repo_id {req.repo_id}; ingest first.")
-    agent = CodeGraphAgent(idx, get_llm(req.model))
+    memory = SESSION_STORE.get(req.session_id)
+    agent = CodeGraphAgent(
+        idx, get_llm(req.model),
+        memory=memory, session_id=req.session_id,
+    )
     return agent.ask(req.question).to_dict()
 
 

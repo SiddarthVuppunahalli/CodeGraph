@@ -48,6 +48,10 @@ class StubLLM:
         m = re.search(r"([A-Za-z_]\w*)\s+function\s+call", ql)
         if m:
             return json.dumps({"tool": "get_callees", "args": {"name": m.group(1)}})
+        # GraphRAG: dependency/impact/related queries
+        m = re.search(r"(?:dependenc|impact|related\s+to|connected\s+to|graph.*)\s+(?:of\s+)?([A-Za-z_]\w*)", ql)
+        if m:
+            return json.dumps({"tool": "graph_search", "args": {"names": [m.group(1)], "hops": 2}})
         # default: keyword search
         return json.dumps({"tool": "search", "args": {"query": q, "k": 6}})
 

@@ -72,6 +72,48 @@ class DependencyGraphBuilder:
             nodes |= nxt
         return self.graph.subgraph(nodes).copy()
 
+    # ---- GraphRAG: seed + N-hop retrieval ---------------------------------------
+    def graph_search(self, seed_names: List[str], *, hops: int = 2,
+                     max_nodes: int = 20) -> List[Tuple[str, dict]]:
+        """Graph-aware retrieval: resolve seed names, walk *hops* outward,
+        return up to *max_nodes* neighboring nodes with their metadata.
+        This is the core GraphRAG primitive — vector search finds the seed,
+        then the graph provides structural context around it."""
+        seeds: List[str] = []
+        for name in seed_names:
+            if name in self.graph:
+                seeds.append(name)
+            else:
+                seeds.extend(self.resolve(name))
+        if not seeds:
+            return []
+
+        visited: set[str] = set(seeds)
+        frontier: set[str] = set(seeds)
+        for _ in range(hops):
+            nxt: set[str] = set()
+            for n in frontier:
+                nxt.update(self.graph.predecessors(n))
+                nxt.update(self.graph.successors(n))
+            frontier = nxt - visited
+            visited |= nxt
+            if len(visited) >= max_nodes:
+                break
+
+        results: List[Tuple[str, dict]] = []
+        for qn in list(visited)[:max_nodes]:
+            data = dict(self.graph.nodes.get(qn, {}))
+            # annotate with edge types from seeds for context
+            edges_from_seeds: List[dict] = []
+            for s in seeds:
+                if self.graph.has_edge(s, qn):
+                    edges_from_seeds.append({"from": s, **dict(self.graph.edges[s, qn])})
+                if self.graph.has_edge(qn, s):
+                    edges_from_seeds.append({"to": s, **dict(self.graph.edges[qn, s])})
+            data["_edges"] = edges_from_seeds
+            results.append((qn, data))
+        return results
+
     # ---- legacy compat (used by old run_eval) ---------------------------------
     def add_call(self, caller: str, callee: str, filepath: str = "unknown") -> None:
         self.graph.add_edge(caller, callee, type="calls", filepath=filepath)

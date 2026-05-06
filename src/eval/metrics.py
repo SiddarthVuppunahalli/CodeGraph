@@ -16,7 +16,8 @@ class CaseMetrics:
     citation_recall: float
     citation_f1: float
     hallucinated: int
-    latency_s: float
+    grounding_score: float = 0.0
+    latency_s: float = 0.0
     tokens_in: int = 0
     tokens_out: int = 0
 
@@ -71,6 +72,7 @@ def score_case(case: dict, agent_result: dict) -> CaseMetrics:
         citation_recall=recall,
         citation_f1=f1,
         hallucinated=hallucinated,
+        grounding_score=float(agent_result.get("grounding_score", 0.0)),
         latency_s=float(agent_result.get("latency_s", 0.0)),
         tokens_in=int(agent_result.get("tokens_in", 0)),
         tokens_out=int(agent_result.get("tokens_out", 0)),
@@ -83,7 +85,8 @@ def aggregate(cases: List[CaseMetrics]) -> Dict[str, Any]:
     n = len(cases)
     def m(attr: str) -> float:
         return sum(getattr(c, attr) for c in cases) / n
-    return {
+
+    result: Dict[str, Any] = {
         "n": n,
         "answer_em": m("answer_em"),
         "answer_contains": m("answer_contains"),
@@ -92,7 +95,44 @@ def aggregate(cases: List[CaseMetrics]) -> Dict[str, Any]:
         "citation_recall": m("citation_recall"),
         "citation_f1": m("citation_f1"),
         "hallucination_rate": m("hallucinated"),
+        "avg_grounding_score": m("grounding_score"),
         "avg_latency_s": m("latency_s"),
         "avg_tokens_in": m("tokens_in"),
         "avg_tokens_out": m("tokens_out"),
+    }
+
+    # Difficulty-stratified breakdown
+    by_difficulty: Dict[str, List[CaseMetrics]] = {}
+    for c in cases:
+        by_difficulty.setdefault(c.difficulty, []).append(c)
+    result["by_difficulty"] = {
+        diff: _sub_aggregate(group) for diff, group in sorted(by_difficulty.items())
+    }
+
+    # Category-stratified breakdown
+    by_category: Dict[str, List[CaseMetrics]] = {}
+    for c in cases:
+        by_category.setdefault(c.category, []).append(c)
+    result["by_category"] = {
+        cat: _sub_aggregate(group) for cat, group in sorted(by_category.items())
+    }
+
+    return result
+
+
+def _sub_aggregate(cases: List[CaseMetrics]) -> Dict[str, Any]:
+    """Lightweight aggregate for stratified sub-groups."""
+    n = len(cases)
+    if not n:
+        return {}
+    def m(attr: str) -> float:
+        return sum(getattr(c, attr) for c in cases) / n
+    return {
+        "n": n,
+        "answer_em": m("answer_em"),
+        "answer_contains": m("answer_contains"),
+        "citation_grounded": m("citation_grounded"),
+        "citation_f1": m("citation_f1"),
+        "hallucination_rate": m("hallucinated"),
+        "avg_grounding_score": m("grounding_score"),
     }

@@ -32,6 +32,11 @@ class ToolBox:
             return self._callees(args.get("name", ""))
         if name == "read_lines":
             return self._read(args.get("filepath", ""), int(args.get("start", 1)), int(args.get("end", 1)))
+        if name == "graph_search":
+            names = args.get("names", [])
+            if isinstance(names, str):
+                names = [names]
+            return self._graph_search(names, int(args.get("hops", 2)))
         return f"ERROR: unknown tool {name}"
 
     def _record(self, fp: str, s: int, e: int):
@@ -82,3 +87,28 @@ class ToolBox:
         body = self.idx.read_lines(filepath, start, end)
         self._record(filepath, start, end)
         return f"TOOL_RESULT read_lines({filepath}:{start}-{end}):\n{body}"
+
+    def _graph_search(self, names: List[str], hops: int) -> str:
+        results = self.idx.graph.graph_search(names, hops=hops, max_nodes=15)
+        if not results:
+            return f"TOOL_RESULT graph_search({names}): (no nodes found)"
+        lines = [f"TOOL_RESULT graph_search({names}, hops={hops}):"]
+        for qn, data in results:
+            fp = data.get("filepath", "?")
+            sl = int(data.get("start_line", 1))
+            el = int(data.get("end_line", sl))
+            self._record(fp, sl, el)
+            kind = data.get("kind", "?")
+            name = data.get("name", qn)
+            edges = data.get("_edges", [])
+            edge_desc = ""
+            if edges:
+                edge_parts = []
+                for e in edges[:3]:
+                    if "from" in e:
+                        edge_parts.append(f"called-by:{e['from']}")
+                    elif "to" in e:
+                        edge_parts.append(f"calls:{e['to']}")
+                edge_desc = " edges=[" + ", ".join(edge_parts) + "]"
+            lines.append(f"- {fp}:{sl}-{el} kind={kind} name={name}{edge_desc}")
+        return "\n".join(lines)

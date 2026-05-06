@@ -7,6 +7,12 @@ You operate as a ReAct agent with these tools:
   search(query: str, k: int = 6)
       Hybrid BM25+vector search over code chunks. Returns chunks with filepath and line ranges.
 
+  graph_search(names: list[str], hops: int = 2)
+      GraphRAG retrieval: find seed nodes by name in the dependency graph, then walk
+      N hops outward to gather structural context (callers, callees, containing classes).
+      Use this when you need to understand how a function fits into the broader codebase,
+      trace dependency chains, or explore impact of changes.
+
   get_callers(name: str)
       Return functions that call a given function name. Each result has filepath and line.
 

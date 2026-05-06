@@ -3,13 +3,15 @@ import json
 import re
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from src.config import SETTINGS
 from src.index_repo import RepoIndex
 from src.llm import LLM, Message
 from .prompts import SYSTEM_PROMPT, FEWSHOT
 from .tools import ToolBox, EvidenceSpan
+from .memory import SessionMemory
+from .logging import StructuredLogger
 
 
 @dataclass
@@ -28,6 +30,7 @@ class AgentResult:
     citations: List[Citation] = field(default_factory=list)
     trace: List[Dict[str, Any]] = field(default_factory=list)
     grounded: bool = False
+    grounding_score: float = 0.0
     model: str = ""
     latency_s: float = 0.0
     tokens_in: int = 0
@@ -38,6 +41,7 @@ class AgentResult:
             "question": self.question, "answer": self.answer,
             "citations": [c.to_dict() for c in self.citations],
             "trace": self.trace, "grounded": self.grounded,
+            "grounding_score": self.grounding_score,
             "model": self.model, "latency_s": self.latency_s,
             "tokens_in": self.tokens_in, "tokens_out": self.tokens_out,
         }
@@ -56,45 +60,110 @@ def _extract_json(text: str) -> Dict[str, Any]:
         return {"final_answer": text.strip(), "citations": []}
 
 
+def _extract_symbols(text: str) -> List[str]:
+    """Extract likely symbol names (identifiers) from answer text."""
+    return re.findall(r"\b([A-Za-z_][A-Za-z0-9_]{2,})\b", text)
+
+
 class CodeGraphAgent:
-    def __init__(self, idx: RepoIndex, llm: LLM, *, max_steps: int | None = None):
+    def __init__(self, idx: RepoIndex, llm: LLM, *,
+                 max_steps: int | None = None,
+                 memory: Optional[SessionMemory] = None,
+                 session_id: str = "default"):
         self.idx = idx
         self.llm = llm
         self.max_steps = max_steps or SETTINGS.max_agent_steps
+        self.memory = memory
+        self.session_id = session_id
 
     def ask(self, question: str) -> AgentResult:
         t0 = time.time()
         toolbox = ToolBox(self.idx)
+        model_name = getattr(self.llm, "name", "unknown")
+        slog = StructuredLogger(session_id=self.session_id, model=model_name)
+
+        # Build system prompt with session memory context if available
+        system_content = SYSTEM_PROMPT + "\n\n" + FEWSHOT
+        if self.memory:
+            prior_ctx = self.memory.retrieve_context(question)
+            if prior_ctx:
+                system_content += (
+                    "\n\n--- SESSION MEMORY ---\n"
+                    "Below are summaries of prior Q&A exchanges in this session. "
+                    "Use them to understand context and chain follow-up questions.\n\n"
+                    + prior_ctx
+                )
+
         messages: List[Message] = [
-            Message(role="system", content=SYSTEM_PROMPT + "\n\n" + FEWSHOT),
+            Message(role="system", content=system_content),
             Message(role="user", content=question),
         ]
         trace: List[Dict[str, Any]] = []
         tokens_in = tokens_out = 0
-        model_name = getattr(self.llm, "name", "unknown")
 
         for step in range(self.max_steps):
+            slog.start_step(step)
             resp = self.llm.chat(messages, temperature=0.0)
             tokens_in += resp.prompt_tokens
             tokens_out += resp.completion_tokens
             decision = _extract_json(resp.text)
             trace.append({"step": step, "raw": resp.text, "decision": decision})
 
+            # Log the planner decision
+            slog.log_planner(
+                step=step, prompt_summary=question,
+                raw_output=resp.text,
+                tokens_in=resp.prompt_tokens, tokens_out=resp.completion_tokens,
+            )
+
             if "final_answer" in decision:
-                citations = self._validate_citations(decision.get("citations", []), toolbox.seen)
-                grounded = len(citations) > 0
-                return AgentResult(
-                    question=question,
-                    answer=str(decision.get("final_answer", "")).strip(),
+                answer_text = str(decision.get("final_answer", "")).strip()
+                raw_citations = decision.get("citations", [])
+                citations = self._validate_citations(raw_citations, toolbox.seen)
+
+                # Grounding verification
+                grounding_score = self._verify_grounding(answer_text, citations)
+                grounded = len(citations) > 0 and grounding_score > 0.0
+
+                # Log critic check
+                slog.log_critic(
+                    step=step, n_raw=len(raw_citations),
+                    n_validated=len(citations),
+                    grounding_score=grounding_score,
+                )
+
+                result = AgentResult(
+                    question=question, answer=answer_text,
                     citations=citations, trace=trace, grounded=grounded,
+                    grounding_score=grounding_score,
                     model=model_name, latency_s=time.time() - t0,
                     tokens_in=tokens_in, tokens_out=tokens_out,
                 )
 
+                # Log final answer
+                slog.log_final_answer(
+                    answer=answer_text, grounded=grounded,
+                    grounding_score=grounding_score,
+                    latency_ms=(time.time() - t0) * 1000,
+                )
+                slog.flush()
+
+                # Save to session memory
+                if self.memory:
+                    symbols = _extract_symbols(answer_text)
+                    self.memory.add(
+                        question=question,
+                        answer=answer_text,
+                        citations=[c.to_dict() for c in citations],
+                        symbols=symbols,
+                    )
+
+                return result
+
             tool = decision.get("tool")
             args = decision.get("args", {}) or {}
             if not tool:
-                # malformed; nudge once and break to avoid loops
+                slog.log_error(step, "malformed JSON — no 'tool' or 'final_answer'")
                 messages.append(Message(role="assistant", content=resp.text))
                 messages.append(Message(role="user", content=(
                     "TOOL_RESULT error: response was not valid JSON with 'tool' or 'final_answer'. "
@@ -102,15 +171,24 @@ class CodeGraphAgent:
                 )))
                 continue
 
+            # Log tool call
+            slog.log_tool_call(step=step, tool_name=tool, tool_args=args)
+            tool_t0 = time.time()
             tool_out = toolbox.call(tool, args)
+            slog.log_tool_result(
+                step=step, tool_name=tool, result=tool_out,
+                latency_ms=(time.time() - tool_t0) * 1000,
+            )
             messages.append(Message(role="assistant", content=resp.text))
             messages.append(Message(role="user", content=tool_out))
 
-        # ran out of steps — return best effort
+        # ran out of steps
+        slog.log_error(step=self.max_steps - 1, error="max steps exceeded")
+        slog.flush()
         return AgentResult(
-            question=question,
-            answer="I don't know.",
+            question=question, answer="I don't know.",
             citations=[], trace=trace, grounded=False,
+            grounding_score=0.0,
             model=model_name, latency_s=time.time() - t0,
             tokens_in=tokens_in, tokens_out=tokens_out,
         )
@@ -129,3 +207,35 @@ class CodeGraphAgent:
             if any(span.overlaps(x) for x in seen):
                 out.append(Citation(filepath=fp, line_ranges=[s, e]))
         return out
+
+    # ---- grounding verification -----------------------------------------------
+    def _verify_grounding(self, answer: str, citations: List[Citation]) -> float:
+        """Re-fetch cited line ranges and check if key terms from the answer
+        actually appear in the source code at those locations.
+
+        Returns a grounding_score between 0.0 and 1.0:
+          - For each citation, extract source text from the file
+          - Tokenize salient words from the answer (length > 3)
+          - Score = fraction of citations where >= 1 salient word matches the source
+        """
+        if not citations:
+            return 0.0
+
+        answer_lower = answer.lower()
+        salient = {w for w in re.findall(r"[a-z_][a-z0-9_]{3,}", answer_lower)}
+        if not salient:
+            return 0.0
+
+        verified = 0
+        for cite in citations:
+            try:
+                source_text = self.idx.read_lines(
+                    cite.filepath, cite.line_ranges[0], cite.line_ranges[1]
+                ).lower()
+                source_words = set(re.findall(r"[a-z_][a-z0-9_]{3,}", source_text))
+                if salient & source_words:
+                    verified += 1
+            except Exception:
+                continue
+
+        return verified / len(citations) if citations else 0.0
