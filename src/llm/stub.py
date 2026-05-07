@@ -57,9 +57,9 @@ class StubLLM:
 
     def _extract_citations(self, tool_block: str) -> list[dict]:
         cites: list[dict] = []
-        for m in re.finditer(r"([\w./\-]+\.py):(\d+)-(\d+)", tool_block):
+        for m in re.finditer(r"([\w./\\\-]+\.py):(\d+)-(\d+)", tool_block):
             cites.append({
-                "filepath": m.group(1),
+                "filepath": m.group(1).replace("\\", "/"),
                 "line_ranges": [int(m.group(2)), int(m.group(3))],
             })
             if len(cites) >= 3:

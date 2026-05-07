@@ -112,6 +112,22 @@ class StructuredLogger:
             extra={"grounded": grounded},
         ))
 
+    def log_guardrail(self, reason: str, blocked: bool) -> None:
+        self.entries.append(LogEntry(
+            timestamp=time.time(), session_id=self.session_id,
+            stage="guardrail", step=0,
+            extra={"reason": reason, "blocked": blocked},
+        ))
+
+    def log_re_retrieval(self, step: int, grounding_score: float,
+                         threshold: float, retry_num: int) -> None:
+        self.entries.append(LogEntry(
+            timestamp=time.time(), session_id=self.session_id,
+            stage="re_retrieval", step=step,
+            grounding_score=grounding_score,
+            extra={"threshold": threshold, "retry": retry_num},
+        ))
+
     def log_error(self, step: int, error: str) -> None:
         self.entries.append(LogEntry(
             timestamp=time.time(), session_id=self.session_id,

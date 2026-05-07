@@ -12,6 +12,7 @@ from .prompts import SYSTEM_PROMPT, FEWSHOT
 from .tools import ToolBox, EvidenceSpan
 from .memory import SessionMemory
 from .logging import StructuredLogger
+from .guardrails import check_query, scan_answer
 
 
 @dataclass
@@ -82,6 +83,22 @@ class CodeGraphAgent:
         model_name = getattr(self.llm, "name", "unknown")
         slog = StructuredLogger(session_id=self.session_id, model=model_name)
 
+        # ---- Safety guardrail: pre-query filter ----
+        refusal = check_query(question)
+        if refusal:
+            slog.log_guardrail(reason=refusal, blocked=True)
+            slog.flush()
+            return AgentResult(
+                question=question,
+                answer=(
+                    "I'm unable to answer that question \u2014 it appears to "
+                    "request sensitive or secret data."
+                ),
+                citations=[], trace=[{"step": 0, "guardrail": refusal}],
+                grounded=False, grounding_score=0.0,
+                model=model_name, latency_s=time.time() - t0,
+            )
+
         # Build system prompt with session memory context if available
         system_content = SYSTEM_PROMPT + "\n\n" + FEWSHOT
         if self.memory:
@@ -100,6 +117,7 @@ class CodeGraphAgent:
         ]
         trace: List[Dict[str, Any]] = []
         tokens_in = tokens_out = 0
+        retries = 0  # track re-retrieval attempts
 
         for step in range(self.max_steps):
             slog.start_step(step)
@@ -131,6 +149,36 @@ class CodeGraphAgent:
                     n_validated=len(citations),
                     grounding_score=grounding_score,
                 )
+
+                # ---- Agentic re-retrieval: loop back if grounding is weak ----
+                threshold = SETTINGS.grounding_threshold
+                if (grounding_score < threshold
+                        and retries < SETTINGS.max_retries
+                        and step < self.max_steps - 1):
+                    retries += 1
+                    slog.log_re_retrieval(
+                        step=step, grounding_score=grounding_score,
+                        threshold=threshold, retry_num=retries,
+                    )
+                    retry_msg = (
+                        f"CRITIC: Your citations scored {grounding_score:.2f} grounding "
+                        f"(below threshold {threshold}). Your cited line ranges did not "
+                        f"match your answer well. Please re-search with different queries "
+                        f"or use read_lines to get better evidence, then produce a new "
+                        f"final_answer with stronger citations."
+                    )
+                    messages.append(Message(role="assistant", content=resp.text))
+                    messages.append(Message(role="user", content=retry_msg))
+                    trace.append({"step": step, "re_retrieval": True,
+                                  "grounding_score": grounding_score,
+                                  "retry": retries})
+                    continue  # go back to the ReAct loop
+
+                # ---- Post-answer guardrail: redact leaked secrets ----
+                answer_text, was_redacted = scan_answer(answer_text)
+                if was_redacted:
+                    slog.log_guardrail(reason="answer contained secret patterns",
+                                       blocked=False)
 
                 result = AgentResult(
                     question=question, answer=answer_text,
@@ -198,7 +246,7 @@ class CodeGraphAgent:
         out: List[Citation] = []
         for c in raw or []:
             try:
-                fp = str(c["filepath"])
+                fp = str(c["filepath"]).replace("\\", "/")
                 rng = c.get("line_ranges") or [c.get("start_line"), c.get("end_line")]
                 s, e = int(rng[0]), int(rng[1] if len(rng) > 1 else rng[0])
             except Exception:

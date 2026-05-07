@@ -23,7 +23,9 @@ class RepoIndex:
     graph: DependencyGraphBuilder
 
     def read_lines(self, filepath: str, start: int, end: int) -> str:
-        p = self.root / filepath
+        # Normalize path separators for cross-platform compatibility
+        fp = filepath.replace("\\", "/")
+        p = self.root / fp
         if not p.exists():
             return f"<file not found: {filepath}>"
         lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
@@ -39,7 +41,7 @@ def build_index(repo_id: str, root: Path) -> RepoIndex:
     graph = DependencyGraphBuilder()
 
     for file_path in walk_python_files(root):
-        rel = str(file_path.relative_to(root))
+        rel = file_path.relative_to(root).as_posix()
         try:
             source = file_path.read_text(encoding="utf-8", errors="replace")
         except Exception:

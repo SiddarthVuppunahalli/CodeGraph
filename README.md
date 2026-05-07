@@ -5,7 +5,7 @@
 CodeGraph is a developer-focused assistant that answers repository questions with verifiable evidence. Every answer includes file-path and line-range citations, and the agent can follow imports/calls to explain behavior that spans multiple files.
 
 ## Team Members
-*   **Siddarth Vuppunahalli** — Siddarth.vuppunahalli@sjsu.edu — SJSU ID: 019157203
+*   **Siddarth Vuppunahalli** — siddarth.vuppunahalli@sjsu.edu — SJSU ID: 019157203
 *   **Krishna Panjiyar** — krishna.panjiyar@sjsu.edu — SJSU ID: 014981369
 *   **Shivani Vinodkumar Jariwala** — shivanivinodkumar.jariwala@sjsu.edu — SJSU ID: 018284188
 

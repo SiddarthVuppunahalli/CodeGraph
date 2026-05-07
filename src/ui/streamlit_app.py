@@ -88,8 +88,20 @@ with tab_ask:
             with colB:
                 st.subheader("Tool trace")
                 for step in d["trace"]:
-                    with st.expander(f"step {step['step']}: {list(step['decision'].keys())[0]}"):
-                        st.json(step["decision"])
+                    if "decision" in step:
+                        label = list(step["decision"].keys())[0]
+                        body = step["decision"]
+                    elif "guardrail" in step:
+                        label = "guardrail"
+                        body = step
+                    elif "re_retrieval" in step:
+                        label = "re-retrieval"
+                        body = step
+                    else:
+                        label = "info"
+                        body = step
+                    with st.expander(f"step {step.get('step', '?')}: {label}"):
+                        st.json(body)
 
 with tab_eval:
     st.write("Run CodeGraphEval against the selected model and view metrics.")

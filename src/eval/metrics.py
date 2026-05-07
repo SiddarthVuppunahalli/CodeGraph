@@ -27,11 +27,11 @@ def _normalize(s: str) -> str:
 
 
 def _spans_overlap(a: tuple[str, int, int], b: tuple[str, int, int]) -> bool:
-    return a[0] == b[0] and not (a[2] < b[1] or b[2] < a[1])
+    return a[0].replace("\\", "/") == b[0].replace("\\", "/") and not (a[2] < b[1] or b[2] < a[1])
 
 
 def _to_span(c: Dict[str, Any]) -> tuple[str, int, int]:
-    fp = str(c.get("filepath", ""))
+    fp = str(c.get("filepath", "")).replace("\\", "/")
     rng = c.get("line_ranges") or [c.get("start_line", 1), c.get("end_line", 1)]
     if len(rng) == 1:
         return (fp, int(rng[0]), int(rng[0]))

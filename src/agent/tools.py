@@ -12,7 +12,7 @@ class EvidenceSpan:
     end_line: int
 
     def overlaps(self, other: "EvidenceSpan") -> bool:
-        return (self.filepath == other.filepath
+        return (self.filepath.replace("\\", "/") == other.filepath.replace("\\", "/")
                 and not (self.end_line < other.start_line or other.end_line < self.start_line))
 
 

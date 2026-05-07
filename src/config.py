@@ -16,6 +16,8 @@ class Settings:
     top_k: int = int(os.getenv("CG_TOP_K", "8"))
     max_agent_steps: int = int(os.getenv("CG_MAX_STEPS", "6"))
     default_model: str = os.getenv("CG_DEFAULT_MODEL", "stub")
+    grounding_threshold: float = float(os.getenv("CG_GROUNDING_THRESHOLD", "0.3"))
+    max_retries: int = int(os.getenv("CG_MAX_RETRIES", "1"))
 
 
 SETTINGS = Settings()
