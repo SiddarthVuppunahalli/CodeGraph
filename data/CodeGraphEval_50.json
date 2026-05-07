@@ -1,0 +1,1042 @@
+[
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is CodeGraphAgent defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The class CodeGraphAgent is defined in src/agent/agent.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/agent.py",
+        "line_ranges": [
+          69,
+          289
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "kind=class"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is EvalReq defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The class EvalReq is defined in src/api/main.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/api/main.py",
+        "line_ranges": [
+          45,
+          59
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "kind=class"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is format_multi_eval_results defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The function format_multi_eval_results is defined in src/eval/harness.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/eval/harness.py",
+        "line_ranges": [
+          29,
+          56
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "kind=function"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is validate_eval_dataset defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The function validate_eval_dataset is defined in src/eval/dataset.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/eval/dataset.py",
+        "line_ranges": [
+          20,
+          86
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "kind=function"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is DependencyGraphBuilder defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The class DependencyGraphBuilder is defined in src/graph/builder.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/graph/builder.py",
+        "line_ranges": [
+          9,
+          123
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "kind=class"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is build_index defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The function build_index is defined in src/index_repo.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/index_repo.py",
+        "line_ranges": [
+          37,
+          66
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "kind=function"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is fetch_repo defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The function fetch_repo is defined in src/ingest/fetch.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/ingest/fetch.py",
+        "line_ranges": [
+          55,
+          74
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "kind=function"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is available_models defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The function available_models is defined in src/llm/registry.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/llm/registry.py",
+        "line_ranges": [
+          10,
+          11
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "kind=function"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is get_llm defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The function get_llm is defined in src/llm/registry.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/llm/registry.py",
+        "line_ranges": [
+          14,
+          41
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "kind=function"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is PythonCodeParser defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The class PythonCodeParser is defined in src/parsing/parser.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/parsing/parser.py",
+        "line_ranges": [
+          42,
+          168
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "kind=class"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is HybridRetriever defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The class HybridRetriever is defined in src/retrieval/hybrid.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/retrieval/hybrid.py",
+        "line_ranges": [
+          9,
+          29
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "kind=class"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is VectorIndex defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The class VectorIndex is defined in src/retrieval/vector_index.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/retrieval/vector_index.py",
+        "line_ranges": [
+          47,
+          73
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "kind=class"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is ToolBox defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The class ToolBox is defined in src/agent/tools.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/tools.py",
+        "line_ranges": [
+          19,
+          114
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "kind=class"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Where is scan_answer defined?",
+    "category": "lookup",
+    "ground_truth_answer": "The function scan_answer is defined in src/agent/guardrails.py.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/guardrails.py",
+        "line_ranges": [
+          80,
+          92
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "kind=function"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What is the default value of embed_model in Settings?",
+    "category": "config-default",
+    "ground_truth_answer": "The default value of embed_model in Settings is os.getenv(\"CG_EMBED_MODEL\", \"sentence-transformers/all-MiniLM-L6-v2\").",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/config.py",
+        "line_ranges": [
+          14,
+          14
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "default=os.getenv(\"CG_EMBED_MODEL\", \"sentence-transformers/all-MiniLM-L6-v2\")"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What is the default value of embed_dim in Settings?",
+    "category": "config-default",
+    "ground_truth_answer": "The default value of embed_dim in Settings is int(os.getenv(\"CG_EMBED_DIM\", \"384\")).",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/config.py",
+        "line_ranges": [
+          15,
+          15
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "default=int(os.getenv(\"CG_EMBED_DIM\", \"384\"))"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What is the default value of top_k in Settings?",
+    "category": "config-default",
+    "ground_truth_answer": "The default value of top_k in Settings is int(os.getenv(\"CG_TOP_K\", \"8\")).",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/config.py",
+        "line_ranges": [
+          16,
+          16
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "default=int(os.getenv(\"CG_TOP_K\", \"8\"))"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What is the default value of max_agent_steps in Settings?",
+    "category": "config-default",
+    "ground_truth_answer": "The default value of max_agent_steps in Settings is int(os.getenv(\"CG_MAX_STEPS\", \"6\")).",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/config.py",
+        "line_ranges": [
+          17,
+          17
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "default=int(os.getenv(\"CG_MAX_STEPS\", \"6\"))"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What is the default value of default_model in Settings?",
+    "category": "config-default",
+    "ground_truth_answer": "The default value of default_model in Settings is os.getenv(\"CG_DEFAULT_MODEL\", \"stub\").",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/config.py",
+        "line_ranges": [
+          18,
+          18
+        ]
+      }
+    ],
+    "difficulty": "easy",
+    "notes": "default=os.getenv(\"CG_DEFAULT_MODEL\", \"stub\")"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What is the default value of grounding_threshold in Settings?",
+    "category": "config-default",
+    "ground_truth_answer": "The default value of grounding_threshold in Settings is float(os.getenv(\"CG_GROUNDING_THRESHOLD\", \"0.3\")).",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/config.py",
+        "line_ranges": [
+          19,
+          19
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "default=float(os.getenv(\"CG_GROUNDING_THRESHOLD\", \"0.3\"))"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What is the default value of max_retries in Settings?",
+    "category": "config-default",
+    "ground_truth_answer": "The default value of max_retries in Settings is int(os.getenv(\"CG_MAX_RETRIES\", \"1\")).",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/config.py",
+        "line_ranges": [
+          20,
+          20
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "default=int(os.getenv(\"CG_MAX_RETRIES\", \"1\"))"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What is the default value of grounded in AgentResult?",
+    "category": "config-default",
+    "ground_truth_answer": "The default value of grounded in AgentResult is False.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/agent.py",
+        "line_ranges": [
+          33,
+          33
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "default=False"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What is the default value of grounding_score in AgentResult?",
+    "category": "config-default",
+    "ground_truth_answer": "The default value of grounding_score in AgentResult is 0.0.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/agent.py",
+        "line_ranges": [
+          34,
+          34
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "default=0.0"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What is the default value of model in AgentResult?",
+    "category": "config-default",
+    "ground_truth_answer": "The default value of model in AgentResult is \"\".",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/agent.py",
+        "line_ranges": [
+          35,
+          35
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "default=\"\""
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls check_query?",
+    "category": "call-trace",
+    "ground_truth_answer": "check_query is called by CodeGraphAgent.ask.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/agent.py",
+        "line_ranges": [
+          80,
+          242
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "n_callers=1"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls scan_answer?",
+    "category": "call-trace",
+    "ground_truth_answer": "scan_answer is called by CodeGraphAgent.ask and test_answer_redaction.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/agent.py",
+        "line_ranges": [
+          80,
+          242
+        ]
+      },
+      {
+        "filepath": "tests/test_smoke.py",
+        "line_ranges": [
+          198,
+          212
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "n_callers=2"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls graph_search?",
+    "category": "call-trace",
+    "ground_truth_answer": "graph_search is called by ToolBox._graph_search and test_graph_search_tool.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/tools.py",
+        "line_ranges": [
+          91,
+          114
+        ]
+      },
+      {
+        "filepath": "tests/test_smoke.py",
+        "line_ranges": [
+          80,
+          87
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "n_callers=2"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls get_callers?",
+    "category": "call-trace",
+    "ground_truth_answer": "get_callers is called by ToolBox._callers and test_parse_and_graph.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/tools.py",
+        "line_ranges": [
+          60,
+          71
+        ]
+      },
+      {
+        "filepath": "tests/test_smoke.py",
+        "line_ranges": [
+          39,
+          45
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "n_callers=2"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls score_case?",
+    "category": "call-trace",
+    "ground_truth_answer": "score_case is called by run_eval and test_metrics_grounding.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/eval/harness.py",
+        "line_ranges": [
+          59,
+          96
+        ]
+      },
+      {
+        "filepath": "tests/test_smoke.py",
+        "line_ranges": [
+          58,
+          75
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "n_callers=2"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls aggregate?",
+    "category": "call-trace",
+    "ground_truth_answer": "aggregate is called by run_eval and test_difficulty_stratified_metrics.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/eval/harness.py",
+        "line_ranges": [
+          59,
+          96
+        ]
+      },
+      {
+        "filepath": "tests/test_smoke.py",
+        "line_ranges": [
+          148,
+          169
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "n_callers=2"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls SessionMemory?",
+    "category": "call-trace",
+    "ground_truth_answer": "SessionMemory is called by SessionStore.get and test_session_memory_multi_turn.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/memory.py",
+        "line_ranges": [
+          101,
+          104
+        ]
+      },
+      {
+        "filepath": "tests/test_smoke.py",
+        "line_ranges": [
+          90,
+          107
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "n_callers=2"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls StructuredLogger?",
+    "category": "call-trace",
+    "ground_truth_answer": "StructuredLogger is called by CodeGraphAgent.ask and test_re_retrieval_logger_method.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/agent.py",
+        "line_ranges": [
+          80,
+          242
+        ]
+      },
+      {
+        "filepath": "tests/test_smoke.py",
+        "line_ranges": [
+          236,
+          243
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "n_callers=2"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls read_lines?",
+    "category": "call-trace",
+    "ground_truth_answer": "read_lines is called by CodeGraphAgent._verify_grounding, ToolBox._read, and file_view.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/agent.py",
+        "line_ranges": [
+          260,
+          289
+        ]
+      },
+      {
+        "filepath": "src/agent/tools.py",
+        "line_ranges": [
+          86,
+          89
+        ]
+      },
+      {
+        "filepath": "src/api/main.py",
+        "line_ranges": [
+          110,
+          114
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "n_callers=3"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls run_eval_multi?",
+    "category": "call-trace",
+    "ground_truth_answer": "run_eval_multi is called by scripts.run_eval.main and src.api.main.evaluate.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "scripts/run_eval.py",
+        "line_ranges": [
+          10,
+          44
+        ]
+      },
+      {
+        "filepath": "src/api/main.py",
+        "line_ranges": [
+          129,
+          140
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "n_callers=2"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls walk_python_files?",
+    "category": "call-trace",
+    "ground_truth_answer": "walk_python_files is called by build_index.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/index_repo.py",
+        "line_ranges": [
+          37,
+          66
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "n_callers=1"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls chunk_parsed_file?",
+    "category": "call-trace",
+    "ground_truth_answer": "chunk_parsed_file is called by build_index.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/index_repo.py",
+        "line_ranges": [
+          37,
+          66
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "n_callers=1"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "What calls format_multi_eval_results?",
+    "category": "call-trace",
+    "ground_truth_answer": "format_multi_eval_results is called by evaluate.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/api/main.py",
+        "line_ranges": [
+          129,
+          140
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "n_callers=1"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "If run_eval changes, which entrypoints are directly affected?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "The directly affected entrypoints are scripts.run_eval.main, src.api.main.evaluate, and run_eval_multi.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "scripts/run_eval.py",
+        "line_ranges": [
+          10,
+          44
+        ]
+      },
+      {
+        "filepath": "src/api/main.py",
+        "line_ranges": [
+          129,
+          140
+        ]
+      },
+      {
+        "filepath": "src/eval/harness.py",
+        "line_ranges": [
+          99,
+          100
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "depends_on=run_eval"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "If build_index changes, which entrypoints are directly affected?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "The directly affected entrypoints are scripts.ingest_repo.main, ingest, ingest_zip, and run_eval.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "scripts/ingest_repo.py",
+        "line_ranges": [
+          9,
+          20
+        ]
+      },
+      {
+        "filepath": "src/api/main.py",
+        "line_ranges": [
+          68,
+          77
+        ]
+      },
+      {
+        "filepath": "src/api/main.py",
+        "line_ranges": [
+          80,
+          93
+        ]
+      },
+      {
+        "filepath": "src/eval/harness.py",
+        "line_ranges": [
+          59,
+          96
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "depends_on=build_index"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "If fetch_repo changes, which entrypoints are directly affected?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "The directly affected entrypoints are scripts.ingest_repo.main, ingest, ingest_zip, and run_eval.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "scripts/ingest_repo.py",
+        "line_ranges": [
+          9,
+          20
+        ]
+      },
+      {
+        "filepath": "src/api/main.py",
+        "line_ranges": [
+          68,
+          77
+        ]
+      },
+      {
+        "filepath": "src/api/main.py",
+        "line_ranges": [
+          80,
+          93
+        ]
+      },
+      {
+        "filepath": "src/eval/harness.py",
+        "line_ranges": [
+          59,
+          96
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "depends_on=fetch_repo"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "If read_lines changes, which code paths are directly affected?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "The directly affected code paths are CodeGraphAgent._verify_grounding, ToolBox._read, and file_view.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/agent.py",
+        "line_ranges": [
+          260,
+          289
+        ]
+      },
+      {
+        "filepath": "src/agent/tools.py",
+        "line_ranges": [
+          86,
+          89
+        ]
+      },
+      {
+        "filepath": "src/api/main.py",
+        "line_ranges": [
+          110,
+          114
+        ]
+      }
+    ],
+    "difficulty": "hard",
+    "notes": "depends_on=read_lines"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Which function constructs the CodeGraphAgent used during evaluation?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "run_eval constructs the CodeGraphAgent used during evaluation.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/eval/harness.py",
+        "line_ranges": [
+          59,
+          96
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "constructs=CodeGraphAgent"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Which function constructs the DependencyGraphBuilder during indexing?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "build_index constructs the DependencyGraphBuilder during indexing.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/index_repo.py",
+        "line_ranges": [
+          37,
+          66
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "constructs=DependencyGraphBuilder"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Which function constructs the HybridRetriever returned inside RepoIndex?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "build_index constructs the HybridRetriever returned inside RepoIndex.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/index_repo.py",
+        "line_ranges": [
+          37,
+          66
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "constructs=HybridRetriever"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Which method depends on scan_answer to sanitize final answers?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "CodeGraphAgent.ask depends on scan_answer to sanitize final answers.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/agent.py",
+        "line_ranges": [
+          80,
+          242
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "depends_on=scan_answer"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Which method depends on check_query to block sensitive prompts before tool use?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "CodeGraphAgent.ask depends on check_query to block sensitive prompts before tool use.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/agent.py",
+        "line_ranges": [
+          80,
+          242
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "depends_on=check_query"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Which method depends on graph_search to expose graph-aware retrieval through the toolbox?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "ToolBox._graph_search depends on graph_search to expose graph-aware retrieval through the toolbox.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/agent/tools.py",
+        "line_ranges": [
+          91,
+          114
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "depends_on=graph_search"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Which function depends on walk_python_files to enumerate Python files before parsing?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "build_index depends on walk_python_files to enumerate Python files before parsing.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/index_repo.py",
+        "line_ranges": [
+          37,
+          66
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "depends_on=walk_python_files"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Which function depends on chunk_parsed_file to create retrieval chunks?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "build_index depends on chunk_parsed_file to create retrieval chunks.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/index_repo.py",
+        "line_ranges": [
+          37,
+          66
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "depends_on=chunk_parsed_file"
+  },
+  {
+    "repo_name": "CodeGraph",
+    "version": "v1.0.0",
+    "question": "Which API endpoint depends on format_multi_eval_results to shape the comparison response?",
+    "category": "dependency-impact",
+    "ground_truth_answer": "evaluate depends on format_multi_eval_results to shape the comparison response.",
+    "ground_truth_evidence": [
+      {
+        "filepath": "src/api/main.py",
+        "line_ranges": [
+          129,
+          140
+        ]
+      }
+    ],
+    "difficulty": "medium",
+    "notes": "depends_on=format_multi_eval_results"
+  }
+]

@@ -1,4 +1,4 @@
-"""CLI: python -m scripts.run_eval --model stub --eval data/CodeGraphEval_50_sample.json"""
+"""CLI: python -m scripts.run_eval --model stub --eval data/CodeGraphEval_50.json"""
 from __future__ import annotations
 import argparse
 import json
@@ -10,7 +10,7 @@ from src.eval.harness import run_eval_multi
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--eval", default="data/CodeGraphEval_50_sample.json")
+    ap.add_argument("--eval", default="data/CodeGraphEval_50.json")
     ap.add_argument("--model", default="stub", help="single model id, e.g. 'stub', 'openai:gpt-4o-mini'")
     ap.add_argument("--models", nargs="*", help="run multiple models for the comparison table")
     ap.add_argument("--max-cases", type=int, default=None)

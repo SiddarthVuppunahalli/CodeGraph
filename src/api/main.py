@@ -6,11 +6,11 @@ from typing import Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
 from src.agent import CodeGraphAgent, SESSION_STORE
 from src.config import DATA_DIR
-from src.eval import run_eval
+from src.eval import run_eval, run_eval_multi, format_multi_eval_results
 from src.index_repo import RepoIndex, build_index
 from src.ingest import fetch_repo
 from src.llm import available_models, get_llm
@@ -44,9 +44,19 @@ class AskReq(BaseModel):
 
 class EvalReq(BaseModel):
     model: str = "stub"
+    models: Optional[List[str]] = None
     eval_path: Optional[str] = None
     max_cases: Optional[int] = None
-    repo_sources: Dict[str, str] = {}
+    repo_sources: Dict[str, str] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_models(self) -> "EvalReq":
+        if self.models is not None:
+            deduped = list(dict.fromkeys(self.models))
+            if not deduped:
+                raise ValueError("models must contain at least one model id")
+            self.models = deduped
+        return self
 
 
 @app.get("/health")
@@ -118,5 +128,13 @@ def graph_neighbors(repo_id: str, name: str, radius: int = 1):
 
 @app.post("/evaluate")
 def evaluate(req: EvalReq):
-    path = Path(req.eval_path) if req.eval_path else (DATA_DIR / "CodeGraphEval_50_sample.json")
+    path = Path(req.eval_path) if req.eval_path else (DATA_DIR / "CodeGraphEval_50.json")
+    if req.models:
+        result = run_eval_multi(
+            path,
+            models=req.models,
+            repo_sources=req.repo_sources,
+            max_cases=req.max_cases,
+        )
+        return format_multi_eval_results(result, models=req.models)
     return run_eval(path, model=req.model, repo_sources=req.repo_sources, max_cases=req.max_cases)

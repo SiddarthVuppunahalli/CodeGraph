@@ -1,70 +1,66 @@
 # CodeGraph: An Evaluation-Driven Agent for Codebase Understanding
 
-**Proposed Application Area:** Option2 - LLMs + AI Agent System (Evaluation-First)
+**Proposed Application Area:** Option 2 - LLMs + AI Agent System (Evaluation-First)
 
-CodeGraph is a developer-focused assistant that answers repository questions with verifiable evidence. Every answer includes file-path and line-range citations, and the agent can follow imports/calls to explain behavior that spans multiple files.
+CodeGraph is a developer-focused assistant that answers repository questions with verifiable evidence. Every answer includes file-path and line-range citations, and the agent can follow imports and calls to explain behavior that spans multiple files.
 
 ## Team Members
-*   **Siddarth Vuppunahalli** — siddarth.vuppunahalli@sjsu.edu — SJSU ID: 019157203
-*   **Krishna Panjiyar** — krishna.panjiyar@sjsu.edu — SJSU ID: 014981369
-*   **Shivani Vinodkumar Jariwala** — shivanivinodkumar.jariwala@sjsu.edu — SJSU ID: 018284188
+- **Siddarth Vuppunahalli** - siddarth.vuppunahalli@sjsu.edu - SJSU ID: 019157203
+- **Krishna Panjiyar** - krishna.panjiyar@sjsu.edu - SJSU ID: 014981369
+- **Shivani Vinodkumar Jariwala** - shivanivinodkumar.jariwala@sjsu.edu - SJSU ID: 018284188
 
 ## Team ID
 DL Group 12
 
 ## Dataset: CodeGraphEval-50
-Because this is an evaluation-first agent system, our dataset is a curated benchmark:
-1.  **Few-shot prompt examples (10–20 cases):** Demonstrations used for prompting/tuning.
-2.  **Evaluation set (≥50 test cases):** `CodeGraphEval-50` built from public repositories. Each test case includes:
-    *   `repo_name` and version/commit
-    *   `question` (NL query)
-    *   `category` (lookup / config-default / call-trace / dependency-impact)
-    *   `ground_truth_answer`
-    *   `ground_truth_evidence` (file paths + exact line ranges)
-    *   `difficulty` (easy/medium/hard)
+CodeGraphEval-50 is a validated 50-case benchmark for this repository.
 
-## Final Demo Vision
-A web app where users provide a GitHub URL/ZIP and ask questions. CodeGraph will output:
-1.  Answers with clickable file + line range citations.
-2.  Optional import/call-path traces and dependency graphs.
-3.  A tool-trace panel logging the Planner → tool calls → Critic checks.
-4.  An "Evaluate" button that runs the CodeGraphEval-50 suite across LLMs (Llama-family, Qwen/DeepSeek coder, Hosted Model) to report accuracy, citation grounding score, and hallucination rate.
+Each case includes:
+- `repo_name` and `version`
+- `question`
+- `category` (`lookup`, `config-default`, `call-trace`, `dependency-impact`)
+- `ground_truth_answer`
+- `ground_truth_evidence` with exact file paths and line ranges
+- `difficulty` (`easy`, `medium`, `hard`)
+
+The benchmark file lives at `data/CodeGraphEval_50.json`. You can regenerate it from live code with:
+
+```bash
+python -m scripts.generate_eval_dataset
+```
+
+## Demo Experience
+The app supports:
+- grounded Q&A with citations
+- tool-trace inspection
+- graph neighborhood visualization
+- single-model evaluation
+- multi-model comparison in the `Evaluate` tab with tables, charts, and per-case drilldowns
 
 ## Technologies Used
-*   **Tree-sitter:** Code parsing
-*   **FAISS:** Vector index
-*   **rank-bm25:** Lexical retrieval
-*   **NetworkX:** Graph construction/traversal (+ GraphRAG retrieval)
-*   **Hugging Face Transformers:** Model loading/inference
-*   **FastAPI & Streamlit/React:** Backend and UI
-*   **Open-weight / Hosted LLMs**
+- Tree-sitter
+- FAISS
+- rank-bm25
+- NetworkX
+- Hugging Face Transformers
+- FastAPI
+- Streamlit
 
-## Quick Start (macOS with Virtual Environment)
+## Quick Start
 
-### Prerequisites
-
-Make sure you have Python 3.10+ and Xcode command line tools installed:
+### 1) Create and activate a virtual environment
 
 ```bash
-# Install Xcode command line tools (needed for tree-sitter compilation)
-xcode-select --install
-
-# Check Python version (macOS ships with python3 via Xcode or Homebrew)
-python3 --version
-
-# If python3 is not found, install via Homebrew
-brew install python
+python -m venv .venv
+. .venv/bin/activate
 ```
 
-### 1) Create and activate the virtual environment
+On Windows PowerShell:
 
-```bash
-cd CodeGraph-main
-python3 -m venv .venv
-source .venv/bin/activate
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 ```
-
-You should see `(.venv)` at the beginning of your terminal prompt. Every command below assumes the venv is active. If you open a new terminal tab, run `source .venv/bin/activate` again.
 
 ### 2) Install dependencies
 
@@ -73,31 +69,28 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Optional extras for real embeddings and hosted LLMs:
+Optional extras for hosted and open-weight models:
 
 ```bash
-# For Apple Silicon (M1/M2/M3/M4) — CPU-only torch is lighter and sufficient
 pip install sentence-transformers openai anthropic
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 pip install accelerate
 ```
 
-### 3) Set API keys (only needed for hosted models)
+### 3) Set API keys if needed
 
 ```bash
 export OPENAI_API_KEY="sk-..."
 export ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
-You can add these to your `~/.zshrc` or `~/.bash_profile` to persist across sessions.
-
-### 4) Run the smoke tests (no API keys needed)
+### 4) Run tests
 
 ```bash
-python -m pytest tests/test_smoke.py -x -v
+python -m pytest tests -x -v
 ```
 
-This uses the `StubLLM` — a deterministic offline baseline — and runs 8 tests covering parsing, the agent loop, GraphRAG, session memory, grounding verification, structured logging, and stratified metrics.
+This covers smoke behavior, structured evaluation responses, and benchmark validation.
 
 ### 5) Index a repo from the CLI
 
@@ -108,118 +101,74 @@ python -m scripts.ingest_repo https://github.com/psf/requests
 ### 6) Run the eval harness
 
 ```bash
-# Single model (stub, no keys needed)
-python -m scripts.run_eval --model stub --eval data/CodeGraphEval_50_sample.json
+# Single model
+python -m scripts.run_eval --model stub --eval data/CodeGraphEval_50.json
 
-# Multi-model comparison table
+# Multi-model comparison
 python -m scripts.run_eval --models stub openai:gpt-4o-mini \
     anthropic:claude-haiku-4-5-20251001 hf:Qwen/Qwen2.5-Coder-1.5B-Instruct \
-    --eval data/CodeGraphEval_50_sample.json --out results.json
+    --eval data/CodeGraphEval_50.json --out results.json
 ```
 
-The eval output now includes `by_difficulty` and `by_category` breakdowns along with `avg_grounding_score` and `hallucination_rate` per model.
+The eval output includes aggregate metrics plus `by_difficulty` and `by_category` breakdowns.
 
 ### 7) Run the web app
 
-Open **two separate terminal tabs**. Activate the venv in both:
+Terminal 1:
 
-**Tab 1 — FastAPI backend:**
 ```bash
-cd CodeGraph-main
-source .venv/bin/activate
 uvicorn src.api.main:app --reload
 ```
 
-**Tab 2 — Streamlit UI:**
+Terminal 2:
+
 ```bash
-cd CodeGraph-main
-source .venv/bin/activate
 streamlit run src/ui/streamlit_app.py
 ```
 
-Then open `http://localhost:8501` in your browser.
-
-**Troubleshooting the web app:**
-
-If `localhost:8501` refuses to connect:
-*   Try `http://127.0.0.1:8501` instead.
-*   Make sure Tab 1 shows `Uvicorn running on http://127.0.0.1:8000` with no errors.
-*   Make sure Tab 2 shows `You can now view your Streamlit app in your browser`.
-*   If Streamlit is not found: `pip install streamlit` (it may not be in `requirements.txt`).
-*   If the port is in use: `lsof -i :8501` to find the process, then `kill -9 <PID>`.
-*   Try binding explicitly: `streamlit run src/ui/streamlit_app.py --server.address localhost --server.port 8501`
-
-### 8) Deactivate when done
-
-```bash
-deactivate
-```
+Then open `http://localhost:8501`.
 
 ## Key Features
 
 ### GraphRAG Retrieval
-The agent includes a `graph_search` tool that performs graph-aware retrieval: it resolves seed function/class names in the dependency graph, then walks N hops outward to gather structural context (callers, callees, containing classes). This goes beyond basic vector search by using the code's actual dependency structure.
+The agent includes a `graph_search` tool that resolves seed function or class names in the dependency graph, then walks outward to gather structural context.
 
 ### Stateful Multi-Turn Memory
-Each session maintains a memory store (`SessionMemory`) of prior Q&A exchanges. When you ask a follow-up question like "what calls that function?", the agent retrieves relevant prior context and chains it into the current prompt. Memory entries are summarized and keyword-indexed, not raw chat history. The `/ask` endpoint accepts a `session_id` parameter to isolate conversations.
+Each session maintains a `SessionMemory` of prior Q&A exchanges so follow-up questions can reuse earlier context.
 
-### Grounding Verification (Critic)
-The citation critic does two-stage validation:
-1.  **Overlap check** — drops any citations that don't overlap evidence spans the tools actually returned.
-2.  **Content verification** — re-fetches the cited source lines and checks whether salient terms from the answer actually appear in the code at those locations. Returns a `grounding_score` (0.0–1.0) per answer.
+### Grounding Verification
+The critic re-fetches cited source lines and checks whether salient answer terms appear in the cited code, producing a `grounding_score`.
 
 ### Structured Logging
-Every agent interaction emits JSON log entries to `logs/agent_log.jsonl`. Each entry includes: `timestamp`, `session_id`, `stage` (planner / tool_call / tool_result / critic / final_answer / error), `tool_name`, `tool_args`, `latency_ms`, `model`, `tokens_in`, `tokens_out`, and `grounding_score`.
+Every agent interaction emits JSON log entries to `logs/agent_log.jsonl`.
 
-### Difficulty-Stratified Evaluation
-The eval harness reports metrics broken down by `difficulty` (easy/medium/hard) and `category` (call-trace, config-default, lookup, dependency-impact). This shows exactly where each model succeeds or fails rather than just an overall number.
+### Multi-Model Evaluation Dashboard
+The `Evaluate` tab supports one-model and multi-model runs, comparison charts, difficulty/category breakdowns, and per-case drilldowns.
 
-## Layout
+## Project Layout
 
-```
+```text
 src/
-  ingest/       fetch + walk repos (GitHub URL, zip, local dir)
-  parsing/      tree-sitter Python parser (regex fallback)
-  graph/        NetworkX call/contains graph + GraphRAG search
-  retrieval/    chunker, BM25, FAISS vector, hybrid RRF
-  llm/          pluggable backends: stub | openai | anthropic | hf
-  agent/        ReAct loop with tools + citation critic
-    memory.py   stateful multi-turn session memory
-    logging.py  structured JSON logging
-  eval/         CodeGraphEval-50 harness + grounding metrics
+  agent/        agent loop, memory, guardrails, logging
   api/          FastAPI backend
+  eval/         harness, metrics, dataset validation
+  graph/        dependency graph + GraphRAG search
+  ingest/       repo fetching and file walking
+  llm/          pluggable model backends
+  parsing/      tree-sitter parsing
+  retrieval/    chunking and retrieval
   ui/           Streamlit UI
-scripts/        run_eval.py, ingest_repo.py
-tests/          smoke tests (8 tests covering all features)
-data/           CodeGraphEval-50 dataset
-logs/           structured agent logs (auto-created)
+scripts/        CLI helpers and dataset generation
+tests/          smoke and evaluation dashboard tests
+data/           CodeGraphEval-50 benchmark
+logs/           structured agent logs
 ```
 
-## Project Roadmap & Next Steps
-
-### Phase 1: Foundation (Current)
-- [x] Initial Repository Setup and README.
-- [x] Establish required dependencies (`transformers`, `tree-sitter`, `networkx`, `faiss`, `fastapi`).
-- [x] Define the `CodeGraphEval-50` Evaluation Benchmark dataset schema and initial mock data.
-
-### Phase 2: Core Infrastructure (Code Parsing & Retrieval)
-- [x] Implement `tree-sitter` parsers (`src/parsing`) to extract functions, classes, and calls from code.
-- [x] Build the Dependency Graph using `NetworkX` (`src/graph`) to track caller-callee relationships.
-- [x] Implement Lexical Search (`rank-bm25`) and Semantic Search (`FAISS`) for repository context retrieval.
-- [x] GraphRAG retrieval — seed node resolution + N-hop graph traversal for structural context.
-
-### Phase 3: Agent System & Evaluation Harness
-- [x] Develop the Agent logic (`src/agent`) to answer NLP queries and output strict citation ranges.
-- [x] Build the Evaluation script (`scripts/run_eval.py`) to systematically grade the Agent against `CodeGraphEval-50`.
-- [x] Stateful multi-turn session memory for chaining follow-up questions.
-- [x] Grounding verification — critic re-fetches cited lines and validates answer claims.
-- [x] Structured JSON logging for every planner, tool, and critic interaction.
-- [x] Difficulty-stratified and category-stratified evaluation reporting.
-- [ ] Integrate local Open-weight LLMs (e.g., Llama, Qwen coder) and a Hosted API LLM for comparison.
-
-### Phase 4: Full App & Demo UI
-- [x] Develop a `FastAPI` backend to serve the Agent logic.
-- [x] Build the `Streamlit` Web application allowing users to interactively query codebases.
-- [ ] Add the complete "Evaluate" dashboard to compare Accuracy, Grounding Score, and Hallucination Rates across models.
-- [ ] Implement UI components to display dependency sub-graphs and call-path traces visually.
-- [ ] Add safety/guardrails layer for detecting and refusing sensitive data exfiltration queries.
+## Roadmap Snapshot
+- [x] Parsing, graph construction, lexical + semantic retrieval
+- [x] Agent loop with citations and grounding verification
+- [x] Structured evaluation harness
+- [x] Multi-model evaluation dashboard in the web app
+- [x] Validated 50-case benchmark for the current repository
+- [ ] Broaden the benchmark to multiple external repositories
+- [ ] Add richer graph/path visualizations

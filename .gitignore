@@ -46,3 +46,8 @@ data/raw/
 
 # CodeGraph runtime cache (cloned repos + indexes)
 .codegraph_index/
+logs/
+.pytest_cache/
+results.json
+latest_eval_results.json
+data/latest_eval_results.json
