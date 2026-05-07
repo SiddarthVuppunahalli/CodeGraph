@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 
+import altair as alt
 import pandas as pd
 import requests
 import streamlit as st
@@ -89,18 +90,82 @@ def _render_eval_overview(summary_df: pd.DataFrame) -> None:
     st.subheader("Comparison Table")
     st.dataframe(summary_df, use_container_width=True)
 
-    chart_df = summary_df.set_index("model")
-    st.subheader("Quality Metrics")
-    st.caption("Higher is better for exact match, answer coverage, grounded citations, and citation F1.")
-    st.bar_chart(chart_df[["answer_em", "answer_contains", "citation_f1"]])
+    st.subheader("Leaderboard")
+    lead_cols = st.columns(3)
+    best_em = summary_df.sort_values("answer_em", ascending=False).iloc[0]
+    best_grounding = summary_df.sort_values("avg_grounding_score", ascending=False).iloc[0]
+    best_latency = summary_df.sort_values("avg_latency_s", ascending=True).iloc[0]
+    lead_cols[0].metric("Best Exact Match", best_em["model"], f"{best_em['answer_em']:.2f}")
+    lead_cols[1].metric("Best Grounding", best_grounding["model"], f"{best_grounding['avg_grounding_score']:.2f}")
+    lead_cols[2].metric("Fastest Model", best_latency["model"], f"{best_latency['avg_latency_s']:.2f}s")
 
-    st.subheader("Grounding and Risk")
-    st.caption("Higher is better for citation grounding and grounding score. Lower is better for hallucination rate.")
-    st.bar_chart(chart_df[["citation_grounded", "avg_grounding_score", "hallucination_rate"]])
+    quality_df = summary_df.melt(
+        id_vars=["model"],
+        value_vars=["answer_em", "answer_contains", "citation_f1"],
+        var_name="metric",
+        value_name="value",
+    )
+    quality_chart = alt.Chart(quality_df).mark_bar(cornerRadiusEnd=4).encode(
+        x=alt.X("value:Q", title="Score", scale=alt.Scale(domain=[0, 1])),
+        y=alt.Y("model:N", title=None, sort="-x"),
+        color=alt.Color("metric:N", title="Metric"),
+        column=alt.Column("metric:N", title=None),
+        tooltip=["model", "metric", alt.Tooltip("value:Q", format=".3f")],
+    ).properties(height=220)
+    st.subheader("Quality Comparison")
+    st.caption("Higher is better for exact match, answer coverage, and citation F1.")
+    st.altair_chart(quality_chart, use_container_width=True)
 
+    risk_df = summary_df.copy()
+    risk_df["trust_score"] = 1.0 - risk_df["hallucination_rate"]
+    risk_melt = risk_df.melt(
+        id_vars=["model"],
+        value_vars=["citation_grounded", "avg_grounding_score", "trust_score"],
+        var_name="metric",
+        value_name="value",
+    )
+    risk_chart = alt.Chart(risk_melt).mark_bar(cornerRadiusEnd=4).encode(
+        x=alt.X("value:Q", title="Score", scale=alt.Scale(domain=[0, 1])),
+        y=alt.Y("model:N", title=None, sort="-x"),
+        color=alt.Color("metric:N", title="Metric"),
+        column=alt.Column("metric:N", title=None),
+        tooltip=["model", "metric", alt.Tooltip("value:Q", format=".3f")],
+    ).properties(height=220)
+    st.subheader("Grounding and Trust")
+    st.caption("Higher is better. `trust_score` is `1 - hallucination_rate` so bigger bars are safer.")
+    st.altair_chart(risk_chart, use_container_width=True)
+
+    latency_chart = alt.Chart(summary_df).mark_bar(cornerRadiusEnd=4).encode(
+        x=alt.X("avg_latency_s:Q", title="Average latency (seconds)"),
+        y=alt.Y("model:N", title=None, sort="x"),
+        color=alt.Color("model:N", legend=None),
+        tooltip=["model", alt.Tooltip("avg_latency_s:Q", format=".3f")],
+    ).properties(height=220)
     st.subheader("Latency")
     st.caption("Lower is better.")
-    st.bar_chart(chart_df[["avg_latency_s"]])
+    st.altair_chart(latency_chart, use_container_width=True)
+
+    heatmap_df = risk_df.melt(
+        id_vars=["model"],
+        value_vars=[
+            "answer_em",
+            "answer_contains",
+            "citation_grounded",
+            "citation_f1",
+            "avg_grounding_score",
+            "trust_score",
+        ],
+        var_name="metric",
+        value_name="value",
+    )
+    heatmap = alt.Chart(heatmap_df).mark_rect().encode(
+        x=alt.X("metric:N", title=None),
+        y=alt.Y("model:N", title=None),
+        color=alt.Color("value:Q", title="Score", scale=alt.Scale(domain=[0, 1], scheme="tealblues")),
+        tooltip=["model", "metric", alt.Tooltip("value:Q", format=".3f")],
+    ).properties(height=220)
+    st.subheader("Metric Heatmap")
+    st.altair_chart(heatmap, use_container_width=True)
 
 
 def _render_single_eval(payload: dict) -> None:
