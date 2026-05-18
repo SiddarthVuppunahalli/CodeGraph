@@ -112,6 +112,35 @@ python -m scripts.run_eval --models stub openai:gpt-4o-mini \
 
 The eval output includes aggregate metrics plus `by_difficulty` and `by_category` breakdowns.
 
+### 6a) Run the ablation study
+
+```bash
+python -m scripts.run_ablation
+```
+
+This runs five real configurations through the full eval harness on all 50 cases and writes `ablation_output/ablation_results.json`:
+
+| Variant         | What it isolates                          |
+| --------------- | ----------------------------------------- |
+| `baseline-stub` | Default settings — control                |
+| `no-grounding`  | Grounding critic disabled (threshold=-1)  |
+| `low-topk`      | `top_k = 2` — under-retrieval             |
+| `high-topk`     | `top_k = 16` — over-retrieval             |
+| `smart-stub`    | Improved rule-based "LLM" with multi-tool exploration |
+
+Expected output (deterministic — `PYTHONHASHSEED=42` pinned in the script):
+
+```
+variant              n  ans_cont  cite_gnd  cite_f1  hallucin  gnd_score
+baseline-stub       50     0.320     0.440    0.338     0.560      0.840
+no-grounding        50     0.380     0.440    0.338     0.560      0.840
+low-topk            50     0.320     0.440    0.338     0.560      0.840
+high-topk           50     0.320     0.440    0.338     0.560      0.840
+smart-stub          50     0.380     0.420    0.322     0.580      0.907
+```
+
+See the project report (Section 6.7) for analysis of these numbers.
+
 ### 7) Run the web app
 
 Terminal 1:

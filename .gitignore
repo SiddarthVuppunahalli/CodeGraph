@@ -51,3 +51,9 @@ logs/
 results.json
 latest_eval_results.json
 data/latest_eval_results.json
+
+# Runtime artifacts (added for clean submission)
+logs/
+.codegraph_index/
+__pycache__/
+*.pyc
