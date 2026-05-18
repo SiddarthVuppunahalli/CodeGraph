@@ -216,6 +216,12 @@ if "repo_id" not in st.session_state:
     st.session_state.repo_id = None
 if "stats" not in st.session_state:
     st.session_state.stats = None
+if "ask_result" not in st.session_state:
+    st.session_state.ask_result = None
+if "eval_result" not in st.session_state:
+    st.session_state.eval_result = None
+if "graph_result" not in st.session_state:
+    st.session_state.graph_result = None
 
 with st.sidebar:
     st.header("1) Ingest a repo")
@@ -264,39 +270,42 @@ with tab_ask:
             if not _handle_stale_repo(r):
                 st.error(r.text)
         else:
-            d = r.json()
-            colA, colB = st.columns([2, 1])
-            with colA:
-                st.subheader("Answer")
-                st.write(d["answer"])
-                st.caption(f"grounded={d['grounded']} - model={d['model']} - {d['latency_s']:.2f}s")
-                st.subheader("Citations")
-                for c in d["citations"]:
-                    fp, (s, e) = c["filepath"], c["line_ranges"]
-                    with st.expander(f"{fp}:{s}-{e}"):
-                        fr = requests.get(f"{API}/file", params={
-                            "repo_id": st.session_state.repo_id,
-                            "path": fp, "start": s, "end": e,
-                        })
-                        if fr.ok:
-                            st.code(fr.json()["text"], language="python")
-            with colB:
-                st.subheader("Tool trace")
-                for step in d["trace"]:
-                    if "decision" in step:
-                        label = list(step["decision"].keys())[0]
-                        body = step["decision"]
-                    elif "guardrail" in step:
-                        label = "guardrail"
-                        body = step
-                    elif "re_retrieval" in step:
-                        label = "re-retrieval"
-                        body = step
-                    else:
-                        label = "info"
-                        body = step
-                    with st.expander(f"step {step.get('step', '?')}: {label}"):
-                        st.json(body)
+            st.session_state.ask_result = r.json()
+
+    if st.session_state.ask_result:
+        d = st.session_state.ask_result
+        colA, colB = st.columns([2, 1])
+        with colA:
+            st.subheader("Answer")
+            st.write(d["answer"])
+            st.caption(f"grounded={d['grounded']} - model={d['model']} - {d['latency_s']:.2f}s")
+            st.subheader("Citations")
+            for c in d["citations"]:
+                fp, (s, e) = c["filepath"], c["line_ranges"]
+                with st.expander(f"{fp}:{s}-{e}"):
+                    fr = requests.get(f"{API}/file", params={
+                        "repo_id": st.session_state.repo_id,
+                        "path": fp, "start": s, "end": e,
+                    })
+                    if fr.ok:
+                        st.code(fr.json()["text"], language="python")
+        with colB:
+            st.subheader("Tool trace")
+            for step in d["trace"]:
+                if "decision" in step:
+                    label = list(step["decision"].keys())[0]
+                    body = step["decision"]
+                elif "guardrail" in step:
+                    label = "guardrail"
+                    body = step
+                elif "re_retrieval" in step:
+                    label = "re-retrieval"
+                    body = step
+                else:
+                    label = "info"
+                    body = step
+                with st.expander(f"step {step.get('step', '?')}: {label}"):
+                    st.json(body)
 
 with tab_eval:
     st.write("Run CodeGraphEval across one or more models and compare quality, grounding, and latency.")
@@ -307,16 +316,20 @@ with tab_eval:
         default=[model],
     )
     max_cases = st.number_input("Max cases (0 = all)", min_value=0, value=0)
-    button_label = "Run comparison" if len(eval_models) > 1 else "Run evaluation"
+    run_ablation = st.checkbox("Run Ablation Study (Graph RAG vs. Baseline RAG)")
+    button_label = "Run ablation study" if run_ablation else ("Run comparison" if len(eval_models) > 1 else "Run evaluation")
     if st.button(button_label):
-        if not eval_models:
+        if not eval_models and not run_ablation:
             st.error("Select at least one model.")
         else:
-            body = {"eval_path": eval_path}
+            body = {"eval_path": eval_path, "run_ablation_study": run_ablation}
             if len(eval_models) == 1:
                 body["model"] = eval_models[0]
-            else:
+            elif len(eval_models) > 1:
                 body["models"] = eval_models
+            else:
+                body["model"] = model # default if nothing selected but running ablation
+            
             if max_cases:
                 body["max_cases"] = int(max_cases)
             with st.spinner("Evaluating..."):
@@ -324,11 +337,14 @@ with tab_eval:
             if not r.ok:
                 st.error(r.text)
             else:
-                payload = r.json()
-                if "summary_rows" in payload:
-                    _render_multi_eval(payload)
-                else:
-                    _render_single_eval(payload)
+                st.session_state.eval_result = r.json()
+    
+    if st.session_state.eval_result:
+        payload = st.session_state.eval_result
+        if "summary_rows" in payload:
+            _render_multi_eval(payload)
+        else:
+            _render_single_eval(payload)
 
 with tab_graph:
     name = st.text_input("Symbol (function/class) name to view neighborhood")
@@ -336,14 +352,17 @@ with tab_graph:
     if st.button("Show graph") and name and st.session_state.repo_id:
         r = requests.get(f"{API}/graph/{st.session_state.repo_id}/{name}", params={"radius": radius})
         if r.ok:
-            data = r.json()
-            try:
-                from streamlit_agraph import agraph, Node, Edge, Config
-                nodes = [Node(id=n["id"], label=n.get("name", n["id"])) for n in data["nodes"]]
-                edges = [Edge(source=e["source"], target=e["target"], label=e.get("type", "")) for e in data["edges"]]
-                agraph(nodes=nodes, edges=edges, config=Config(width=900, height=600, directed=True))
-            except Exception:
-                st.json(data)
+            st.session_state.graph_result = r.json()
         else:
             if not _handle_stale_repo(r):
                 st.error(r.text)
+
+    if st.session_state.graph_result:
+        data = st.session_state.graph_result
+        try:
+            from streamlit_agraph import agraph, Node, Edge, Config
+            nodes = [Node(id=n["id"], label=n.get("name", n["id"])) for n in data["nodes"]]
+            edges = [Edge(source=e["source"], target=e["target"], label=e.get("type", "")) for e in data["edges"]]
+            agraph(nodes=nodes, edges=edges, config=Config(width=900, height=600, directed=True))
+        except Exception:
+            st.json(data)

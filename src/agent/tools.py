@@ -19,11 +19,15 @@ class EvidenceSpan:
 class ToolBox:
     """Executes tool calls against a RepoIndex and accumulates seen evidence spans."""
 
-    def __init__(self, idx: RepoIndex):
+    def __init__(self, idx: RepoIndex, use_graph: bool = True):
         self.idx = idx
+        self.use_graph = use_graph
         self.seen: List[EvidenceSpan] = []
 
     def call(self, name: str, args: Dict[str, Any]) -> str:
+        if name in ("get_callers", "get_callees", "graph_search") and not self.use_graph:
+            return f"ERROR: tool {name} is disabled in baseline mode."
+
         if name == "search":
             return self._search(args.get("query", ""), int(args.get("k", 6)))
         if name == "get_callers":

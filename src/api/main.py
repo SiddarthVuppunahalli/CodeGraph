@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from src.agent import CodeGraphAgent, SESSION_STORE
 from src.config import DATA_DIR
-from src.eval import run_eval, run_eval_multi, format_multi_eval_results
+from src.eval import run_eval, run_eval_multi, format_multi_eval_results, run_ablation
 from src.index_repo import RepoIndex, build_index
 from src.ingest import fetch_repo
 from src.llm import available_models, get_llm
@@ -48,6 +48,7 @@ class EvalReq(BaseModel):
     eval_path: Optional[str] = None
     max_cases: Optional[int] = None
     repo_sources: Dict[str, str] = Field(default_factory=dict)
+    run_ablation_study: bool = False
 
     @model_validator(mode="after")
     def validate_models(self) -> "EvalReq":
@@ -129,6 +130,13 @@ def graph_neighbors(repo_id: str, name: str, radius: int = 1):
 @app.post("/evaluate")
 def evaluate(req: EvalReq):
     path = Path(req.eval_path) if req.eval_path else (DATA_DIR / "CodeGraphEval_50.json")
+    if req.run_ablation_study:
+        return run_ablation(
+            path,
+            model=req.model,
+            repo_sources=req.repo_sources,
+            max_cases=req.max_cases,
+        )
     if req.models:
         result = run_eval_multi(
             path,

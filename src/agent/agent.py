@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 from src.config import SETTINGS
 from src.index_repo import RepoIndex
 from src.llm import LLM, Message
-from .prompts import SYSTEM_PROMPT, FEWSHOT
+from .prompts import SYSTEM_PROMPT, FEWSHOT, GRAPH_SYSTEM_PROMPT, BASELINE_SYSTEM_PROMPT
 from .tools import ToolBox, EvidenceSpan
 from .memory import SessionMemory
 from .logging import StructuredLogger
@@ -70,16 +70,18 @@ class CodeGraphAgent:
     def __init__(self, idx: RepoIndex, llm: LLM, *,
                  max_steps: int | None = None,
                  memory: Optional[SessionMemory] = None,
-                 session_id: str = "default"):
+                 session_id: str = "default",
+                 use_graph: bool = True):
         self.idx = idx
         self.llm = llm
         self.max_steps = max_steps or SETTINGS.max_agent_steps
         self.memory = memory
         self.session_id = session_id
+        self.use_graph = use_graph
 
     def ask(self, question: str) -> AgentResult:
         t0 = time.time()
-        toolbox = ToolBox(self.idx)
+        toolbox = ToolBox(self.idx, use_graph=self.use_graph)
         model_name = getattr(self.llm, "name", "unknown")
         slog = StructuredLogger(session_id=self.session_id, model=model_name)
 
@@ -100,7 +102,8 @@ class CodeGraphAgent:
             )
 
         # Build system prompt with session memory context if available
-        system_content = SYSTEM_PROMPT + "\n\n" + FEWSHOT
+        base_prompt = GRAPH_SYSTEM_PROMPT if self.use_graph else BASELINE_SYSTEM_PROMPT
+        system_content = base_prompt + "\n\n" + FEWSHOT
         if self.memory:
             prior_ctx = self.memory.retrieve_context(question)
             if prior_ctx:

@@ -65,6 +65,7 @@ def run_eval(
     *, model: str = "stub",
     repo_sources: Optional[Dict[str, str]] = None,
     max_cases: Optional[int] = None,
+    use_graph: bool = True,
 ) -> dict:
     """Run CodeGraphEval-50 against a single LLM and return per-case + aggregate metrics.
 
@@ -92,7 +93,7 @@ def run_eval(
         else:
             rid, root = fetch_repo(src)
             indexes[key] = build_index(repo_id=rid, root=root)
-        agent = CodeGraphAgent(indexes[key], llm)
+        agent = CodeGraphAgent(indexes[key], llm, use_graph=use_graph)
         for group_idx, case in enumerate(group, 1):
             _log(
                 f"[{model}] Case {completed + 1}/{total_cases} in {key}: "
@@ -117,3 +118,12 @@ def run_eval_multi(eval_path: Path, *, models: List[str], **kwargs) -> dict:
     results = {m: run_eval(eval_path, model=m, **kwargs) for m in models}
     _log("Completed multi-eval")
     return results
+
+def run_ablation(eval_path: Path, *, model: str, **kwargs) -> dict:
+    _log(f"Starting ablation study for {model} (Graph RAG vs Baseline RAG)")
+    results = {
+        "GraphRAG": run_eval(eval_path, model=model, use_graph=True, **kwargs),
+        "BaselineRAG": run_eval(eval_path, model=model, use_graph=False, **kwargs),
+    }
+    _log("Completed ablation study")
+    return format_multi_eval_results(results, models=["GraphRAG", "BaselineRAG"])
