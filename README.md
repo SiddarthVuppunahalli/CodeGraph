@@ -199,5 +199,7 @@ logs/           structured agent logs
 - [x] Structured evaluation harness
 - [x] Multi-model evaluation dashboard in the web app
 - [x] Validated 50-case benchmark for the current repository
-- [ ] Broaden the benchmark to multiple external repositories
-- [ ] Add richer graph/path visualizations
+- [x] Interactive dependency-graph neighborhood viewer (Streamlit Graph tab)
+- [x] Deterministic 5-variant ablation study (smart-stub, no-grounding, top-k sweeps)
+- [x] GraphRAG vs BaselineRAG hosted-LLM ablation (UI toggle + harness API)
+- [ ] Extend CodeGraphEval to additional public repositories for out-of-distribution evaluation
